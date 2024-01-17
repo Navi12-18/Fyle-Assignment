@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Repositories</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .repo-card {
+      width: 300px;
+      margin: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .page-link {
+      margin: 0 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <label for="perPage">Repositories per page:</label>
+  <select id="perPage" onchange="changePerPage()">
+    <option value="10">10</option>
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+</div>
+
+<div id="repositoriesContainer"></div>
+<div class="pagination" id="paginationContainer"></div>
+
+<script>
+  // Replace 'YOUR_USERNAME' with the GitHub username for which you want to fetch repositories.
+  const username = 'Navi12-18';
+
+  // Replace 'YOUR_TOKEN' with your GitHub personal access token.
+  const token = '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';
+  let perPage = 10; // Default repositories per page.
+  let currentPage = 1; // Initial page number.
+
+  function fetchRepos(page) {
+    const apiUrl = `https://api.github.com/users/${username}/repos?page=${page}&per_page=${perPage}`;
+
+    fetch(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((repositories) => {
+        // Process the list of repositories and create cards.
+        const repositoriesContainer = document.getElementById('repositoriesContainer');
+        repositoriesContainer.innerHTML = '';
+
+        repositories.forEach((repo) => {
+          const repoCard = document.createElement('div');
+          repoCard.className = 'repo-card';
+
+          const title = document.createElement('h2');
+          title.textContent = repo.name;
+
+          const description = document.createElement('p');
+          description.textContent = repo.description || 'No description available.';
+
+          const language = document.createElement('p');
+          language.textContent = `Language: ${repo.language || 'Not specified'}`;
+
+          const link = document.createElement('a');
+          link.href = repo.html_url;
+          link.textContent = 'View on GitHub';
+
+          repoCard.appendChild(title);
+          repoCard.appendChild(description);
+          repoCard.appendChild(language);
+          repoCard.appendChild(link);
+
+          repositoriesContainer.appendChild(repoCard);
+        });
+      })
+      .catch((error) => console.error('Error:', error));
+  }
+
+  function changePerPage() {
+    perPage = document.getElementById('perPage').value;
+    currentPage = 1; // Reset page to 1 when changing perPage.
+    fetchRepos(currentPage);
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const paginationContainer = document.getElementById('paginationContainer');
+    paginationContainer.innerHTML = '';
+
+    // Simulate a total of 100 repositories (replace with actual total repositories count if available).
+    const totalRepositories = 100;
+
+    const totalPages = Math.ceil(totalRepositories / perPage);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageLink = document.createElement('span');
+      pageLink.className = 'page-link';
+      pageLink.textContent = i;
+      pageLink.onclick = () => {
+        currentPage = i;
+        fetchRepos(currentPage);
+        updatePagination();
+      };
+
+      paginationContainer.appendChild(pageLink);
+    }
+  }
+
+  // Initial fetch and pagination setup.
+  fetchRepos(currentPage);
+  updatePagination();
+</script>
+
+</body>
+</html>
