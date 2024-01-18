@@ -32,14 +32,8 @@
       justify-content: center;
       align-items: center;
       margin-bottom: 20px;
-      border: 1px solid #3498db;
       border-radius: 10px;
       padding: 20px;
-      transition: box-shadow 0.3s ease-in-out;
-    }
-
-    #userContainer:hover {
-      box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
     }
 
     #userDetailsHeading {
@@ -197,6 +191,40 @@
         width: 100%;
       }
     }
+
+    .loader {
+    display: none;
+    border: 8px solid #f3f3f3; /* Light gray border */
+    border-top: 8px solid #3498db; /* Blue border for animation */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite; /* Spin animation */
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  #repoSearchBarContainer {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+  #repoSearchBar {
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #3498db;
+      border-radius: 5px;
+      outline: none;
+      transition: border-color 0.3s ease-in-out;
+    }
+
+    #repoSearchBar:focus {
+      border-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -222,6 +250,13 @@
   </div>
 </div>
 
+<div id="loaderUser" class="loader"></div> <!-- Loader for user details -->
+<div id="loaderRepos" class="loader"></div> 
+
+<div id="repoSearchBarContainer">
+  <input type="text" id="repoSearchBar" placeholder="Search Repositories" oninput="filterRepositories()">
+</div>
+
 <div id="perPageContainer">
   <label id="perPageLabel" for="perPage">Repositories per page:</label>
   <select id="perPage" onchange="changePerPage()">
@@ -240,102 +275,121 @@
   let perPage = 10; // Default repositories per page.
   let currentPage = 1; // Initial page number.
 
+  function showLoader(loaderId) {
+    const loader = document.getElementById(loaderId);
+    loader.style.display = 'block';
+  }
+
+  function hideLoader(loaderId) {
+    const loader = document.getElementById(loaderId);
+    loader.style.display = 'none';
+  }
+
   function fetchUser() {
-    const apiUrl = `https://api.github.com/users/${username}`;
+  showLoader('loaderUser');
+  const apiUrl = `https://api.github.com/users/${username}`;
 
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((user) => {
-        const userImage = document.getElementById('userImage');
-        userImage.src = user.avatar_url;
-        userImage.alt = user.name ? `User Image - ${user.name}` : 'User Image - Not available';
+  fetch(apiUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((user) => {
+      const userImage = document.getElementById('userImage');
+      userImage.src = user.avatar_url;
+      userImage.alt = user.name ? `User Image - ${user.name}` : 'User Image - Not available';
 
-        const userName = document.getElementById('userName');
-        userName.textContent = user.name || user.login; // Use user.login if user.name is not available
+      const userName = document.getElementById('userName');
+      userName.textContent = user.name || user.login;
 
-        const userLocation = document.getElementById('userLocation');
-        userLocation.textContent = user.location || 'Location not specified';
-      })
-      .catch((error) => {
-        console.error('Error fetching user:', error);
-      });
+      const userLocation = document.getElementById('userLocation');
+      userLocation.textContent = user.location || 'Location not specified';
+    })
+    .catch((error) => {
+      console.error('Error fetching user:', error);
+    })
+    .finally(() => {
+      hideLoader('loaderUser'); // Hide user details loader after the user details are fetched
+    });
+}
+
+function fetchRepos(page) {
+  showLoader('loaderRepos');
+  const apiUrl = `https://api.github.com/users/${username}/repos?page=${page}&per_page=${perPage}`;
+
+  fetch(apiUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((repositories) => {
+      const repositoriesContainer = document.getElementById('repositoriesContainer');
+      repositoriesContainer.innerHTML = ''; // Clear existing repositories
+
+      if (repositories.length === 0) {
+        const noRepoMessage = document.createElement('p');
+        noRepoMessage.textContent = 'No repositories found for the given username.';
+        repositoriesContainer.appendChild(noRepoMessage);
+      } else {
+        repositories.forEach((repo) => {
+          const repoCard = document.createElement('div');
+          repoCard.className = 'repo-card';
+
+          const title = document.createElement('h2');
+          title.textContent = repo.name;
+          title.onclick = () => {
+            console.log('Repository URL:', repo.html_url);
+            window.open(repo.html_url, '_blank'); // Open GitHub project in a new tab
+          };
+
+          const description = document.createElement('p');
+          description.textContent = repo.description || 'No description available.';
+
+          const tagDiv = document.createElement('div');
+          tagDiv.className = 'tag';
+          tagDiv.textContent = repo.language || 'Not specified';
+
+          repoCard.appendChild(title);
+          repoCard.appendChild(description);
+          repoCard.appendChild(tagDiv);
+
+          repositoriesContainer.appendChild(repoCard);
+        });
+      }
+    })
+    .catch((error) => console.error('Error fetching repositories:', error))
+    .finally(() => {
+      hideLoader('loaderRepos'); // Hide repositories loader after 4 seconds
+    });
+}
+
+
+function searchRepositories() {
+  username = document.getElementById('searchField').value;
+  const userContainer = document.getElementById('userContainer');
+  const repositoriesContainer = document.getElementById('repositoriesContainer');
+  const perPageContainer = document.getElementById('perPageContainer');
+
+  if (username) {
+    currentPage = 1;
+    userContainer.style.display = 'flex';
+    perPageContainer.style.display = 'block';
+    repositoriesContainer.innerHTML = ''; // Clear existing repositories
+    showLoader('loaderUser');
+    fetchUser();
+    fetchRepos(currentPage);
+    updatePagination();
+    document.getElementById('enterUsername').style.display = 'none';
+  } else {
+    userContainer.style.display = 'none';
+    repositoriesContainer.innerHTML = ''; // Clear existing repositories
+    perPageContainer.style.display = 'none';
+    document.getElementById('enterUsername').style.display = 'block';
   }
-
-  function fetchRepos(page) {
-    const apiUrl = `https://api.github.com/users/${username}/repos?page=${page}&per_page=${perPage}`;
-
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((repositories) => {
-        // Process the list of repositories and create cards.
-        const repositoriesContainer = document.getElementById('repositoriesContainer');
-        repositoriesContainer.innerHTML = '';
-
-        if (repositories.length === 0) {
-          const noRepoMessage = document.createElement('p');
-          noRepoMessage.textContent = 'No repositories found for the given username.';
-          repositoriesContainer.appendChild(noRepoMessage);
-        } else {
-          repositories.forEach((repo) => {
-            const repoCard = document.createElement('div');
-            repoCard.className = 'repo-card';
-
-            const title = document.createElement('h2');
-            title.textContent = repo.name;
-            title.onclick = () => {
-    console.log('Repository URL:', repo.html_url);
-    window.open(repo.html_url, '_blank'); // Open GitHub project in a new tab
-}; // Open GitHub project in a new tab
-
-            const description = document.createElement('p');
-            description.textContent = repo.description || 'No description available.';
-
-            // Create a div for the tag-like design
-            const tagDiv = document.createElement('div');
-            tagDiv.className = 'tag';
-            tagDiv.textContent = repo.language || 'Not specified';
-
-            repoCard.appendChild(title);
-            repoCard.appendChild(description);
-            repoCard.appendChild(tagDiv); // Append the tag-like div
-
-            repositoriesContainer.appendChild(repoCard);
-          });
-        }
-      })
-      .catch((error) => console.error('Error:', error));
-  }
-
-  function searchRepositories() {
-    username = document.getElementById('searchField').value;
-    const userContainer = document.getElementById('userContainer');
-    const repositoriesContainer = document.getElementById('repositoriesContainer');
-    const perPageContainer = document.getElementById('perPageContainer');
-
-    if (username) {
-        currentPage = 1;
-        userContainer.style.display = 'flex';
-        perPageContainer.style.display = 'block';  // Show perPageContainer
-        fetchUser();
-        fetchRepos(currentPage);
-        updatePagination();
-        document.getElementById('enterUsername').style.display = 'none';
-    } else {
-        userContainer.style.display = 'none';
-        repositoriesContainer.innerHTML = '';
-        perPageContainer.style.display = 'none';  // Hide perPageContainer
-        document.getElementById('enterUsername').style.display = 'block';
-    }
 }
 
   function changePerPage() {
@@ -381,6 +435,22 @@
         }
       })
       .catch((error) => console.error('Error:', error));
+  }
+
+  function filterRepositories() {
+    const searchTerm = document.getElementById('repoSearchBar').value.toLowerCase();
+    const repoCards = document.querySelectorAll('.repo-card');
+
+    repoCards.forEach((repoCard) => {
+      const title = repoCard.querySelector('h2').textContent.toLowerCase();
+      const description = repoCard.querySelector('p').textContent.toLowerCase();
+
+      // Check if the title or description contains the search term
+      const isVisible = title.includes(searchTerm) || description.includes(searchTerm);
+
+      // Toggle visibility based on the search result
+      repoCard.style.display = isVisible ? 'block' : 'none';
+    });
   }
 
   // Initial fetch and pagination setup.
