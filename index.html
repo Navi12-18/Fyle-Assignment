@@ -4,28 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitHub Repositories</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #3498db; /* Blue color for the heading */
+    }
+
+    #main {
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    #userContainer {
+      display: none;
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      border: 1px solid #3498db;
+      border-radius: 10px;
+      padding: 20px;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    #userContainer:hover {
+      box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
+    }
+
+    #userDetailsHeading {
+      color: #3498db; /* Blue color for the user details heading */
+      cursor: default;
+    }
+
+    #basicInformation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #userImage {
+      border-radius: 50%;
+      margin-bottom: 10px;
     }
 
     .repo-card {
-      width: 300px;
-      margin: 20px;
+      box-sizing: border-box;
+      grid-column: span 1;
+      width: 100%;
       padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      border: 1px solid #3498db;
+      border-radius: 10px;
+      margin-bottom: 20px; /* Added vertical space between repo-cards */
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .repo-card:hover {
+      box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
     }
 
     h2 {
       margin-bottom: 10px;
+      color: #333; /* Default color for heading */
+      cursor: pointer;
+    }
+
+    h2:hover {
+      color: #3498db; /* Blue color on hover */
     }
 
     p {
-      margin: 0;
+      margin: 4px 0; /* Added vertical space between repo card content */
     }
 
     .pagination {
@@ -37,13 +97,133 @@
     .page-link {
       margin: 0 5px;
       cursor: pointer;
+      color: #333;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .page-link:hover {
+      color: #3498db;
+    }
+
+    #searchContainer {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #searchField {
+      padding: 8px;
+      margin-bottom: 8px;
+      width: 200px;
+      border: 1px solid #3498db;
+      border-radius: 5px;
+    }
+
+    #searchButton {
+      padding: 8px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    .searchButtonContainer{
+      display: flex;
+      /* justify-content: center; */
+      align-items: center;
+    }
+
+    #enterUsername {
+      margin-top: 10px;
+      color: #3498db;
+    }
+
+    #perPageContainer {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    #perPageLabel {
+      margin-right: 5px;
+    }
+
+    #perPage {
+      padding: 8px;
+      width: 60px;
+    }
+
+    #repositoriesContainer {
+      margin: 20px auto;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      width: 100%;
+    }
+
+    .repo-card > p {
+      margin: 5px 0px;
+    }
+
+    .tag {
+      padding: 5px;
+      background-color: #3498db;
+      width: max-content;
+      color: #fff;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+
+    @media (min-width: 769px) {
+      /* Adjust the number of visible repo cards on desktop */
+      #repositoriesContainer {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      #searchContainer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #searchField {
+        width: 100%;
+      }
+
+      #searchButton {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-<div>
-  <label for="perPage">Repositories per page:</label>
+<h1>GitFinder</h1>
+
+<div id="searchContainer">
+  <div class = "searchButtonContainer">
+    <input type="text" id="searchField" placeholder="Enter Github Username">
+    <button id="searchButton" onclick="searchRepositories()">Search</button>
+  </div>
+  <div id="enterUsername">Please enter username to get started</div>
+</div>
+
+<div id="main">
+  <div id="userContainer">
+    <h2 id="userDetailsHeading">User Details</h2>
+    <img id="userImage" src="" alt="User Image" width="100">
+    <div id="basicInformation">
+      <h2 id="userName"></h2>
+      <p id="userLocation"></p>
+    </div>
+  </div>
+</div>
+
+<div id="perPageContainer">
+  <label id="perPageLabel" for="perPage">Repositories per page:</label>
   <select id="perPage" onchange="changePerPage()">
     <option value="10">10</option>
     <option value="20">20</option>
@@ -56,22 +236,40 @@
 <div class="pagination" id="paginationContainer"></div>
 
 <script>
-  // Replace 'YOUR_USERNAME' with the GitHub username for which you want to fetch repositories.
-  const username = 'Navi12-18';
-
-  // Replace 'YOUR_TOKEN' with your GitHub personal access token.
-  const token = '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';
+  let username = ''; // GitHub username for which repositories will be fetched.
   let perPage = 10; // Default repositories per page.
   let currentPage = 1; // Initial page number.
+
+  function fetchUser() {
+    const apiUrl = `https://api.github.com/users/${username}`;
+
+    fetch(apiUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((user) => {
+        const userImage = document.getElementById('userImage');
+        userImage.src = user.avatar_url;
+        userImage.alt = user.name ? `User Image - ${user.name}` : 'User Image - Not available';
+
+        const userName = document.getElementById('userName');
+        userName.textContent = user.name || user.login; // Use user.login if user.name is not available
+
+        const userLocation = document.getElementById('userLocation');
+        userLocation.textContent = user.location || 'Location not specified';
+      })
+      .catch((error) => {
+        console.error('Error fetching user:', error);
+      });
+  }
 
   function fetchRepos(page) {
     const apiUrl = `https://api.github.com/users/${username}/repos?page=${page}&per_page=${perPage}`;
 
-    fetch(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(apiUrl)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -83,33 +281,62 @@
         const repositoriesContainer = document.getElementById('repositoriesContainer');
         repositoriesContainer.innerHTML = '';
 
-        repositories.forEach((repo) => {
-          const repoCard = document.createElement('div');
-          repoCard.className = 'repo-card';
+        if (repositories.length === 0) {
+          const noRepoMessage = document.createElement('p');
+          noRepoMessage.textContent = 'No repositories found for the given username.';
+          repositoriesContainer.appendChild(noRepoMessage);
+        } else {
+          repositories.forEach((repo) => {
+            const repoCard = document.createElement('div');
+            repoCard.className = 'repo-card';
 
-          const title = document.createElement('h2');
-          title.textContent = repo.name;
+            const title = document.createElement('h2');
+            title.textContent = repo.name;
+            title.onclick = () => {
+    console.log('Repository URL:', repo.html_url);
+    window.open(repo.html_url, '_blank'); // Open GitHub project in a new tab
+}; // Open GitHub project in a new tab
 
-          const description = document.createElement('p');
-          description.textContent = repo.description || 'No description available.';
+            const description = document.createElement('p');
+            description.textContent = repo.description || 'No description available.';
 
-          const language = document.createElement('p');
-          language.textContent = `Language: ${repo.language || 'Not specified'}`;
+            // Create a div for the tag-like design
+            const tagDiv = document.createElement('div');
+            tagDiv.className = 'tag';
+            tagDiv.textContent = repo.language || 'Not specified';
 
-          const link = document.createElement('a');
-          link.href = repo.html_url;
-          link.textContent = 'View on GitHub';
+            repoCard.appendChild(title);
+            repoCard.appendChild(description);
+            repoCard.appendChild(tagDiv); // Append the tag-like div
 
-          repoCard.appendChild(title);
-          repoCard.appendChild(description);
-          repoCard.appendChild(language);
-          repoCard.appendChild(link);
-
-          repositoriesContainer.appendChild(repoCard);
-        });
+            repositoriesContainer.appendChild(repoCard);
+          });
+        }
       })
       .catch((error) => console.error('Error:', error));
   }
+
+  function searchRepositories() {
+    username = document.getElementById('searchField').value;
+    const userContainer = document.getElementById('userContainer');
+    const repositoriesContainer = document.getElementById('repositoriesContainer');
+    const perPageContainer = document.getElementById('perPageContainer');
+
+    if (username) {
+        currentPage = 1;
+        userContainer.style.display = 'flex';
+        perPageContainer.style.display = 'block';  // Show perPageContainer
+        fetchUser();
+        fetchRepos(currentPage);
+        updatePagination();
+        document.getElementById('enterUsername').style.display = 'none';
+    } else {
+        userContainer.style.display = 'none';
+        repositoriesContainer.innerHTML = '';
+        perPageContainer.style.display = 'none';  // Hide perPageContainer
+        document.getElementById('enterUsername').style.display = 'block';
+    }
+}
 
   function changePerPage() {
     perPage = document.getElementById('perPage').value;
@@ -119,32 +346,47 @@
   }
 
   function updatePagination() {
-    const paginationContainer = document.getElementById('paginationContainer');
-    paginationContainer.innerHTML = '';
-
-    // Simulate a total of 100 repositories (replace with actual total repositories count if available).
-    const totalRepositories = 100;
-
-    const totalPages = Math.ceil(totalRepositories / perPage);
-
-    for (let i = 1; i <= totalPages; i++) {
-      const pageLink = document.createElement('span');
-      pageLink.className = 'page-link';
-      pageLink.textContent = i;
-      pageLink.onclick = () => {
-        currentPage = i;
-        fetchRepos(currentPage);
-        updatePagination();
-      };
-
-      paginationContainer.appendChild(pageLink);
+    if (!username) {
+      return; // No need to update pagination if no username is entered.
     }
+
+    const apiUrl = `https://api.github.com/users/${username}`;
+    fetch(apiUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((user) => {
+        // Simulate a total of 100 repositories (replace with actual total repositories count if available).
+        const totalRepositories = user.public_repos;
+
+        const paginationContainer = document.getElementById('paginationContainer');
+        paginationContainer.innerHTML = '';
+
+        const totalPages = Math.ceil(totalRepositories / perPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+          const pageLink = document.createElement('span');
+          pageLink.className = 'page-link';
+          pageLink.textContent = i;
+          pageLink.onclick = () => {
+            currentPage = i;
+            fetchRepos(currentPage);
+            updatePagination();
+          };
+
+          paginationContainer.appendChild(pageLink);
+        }
+      })
+      .catch((error) => console.error('Error:', error));
   }
 
   // Initial fetch and pagination setup.
+  fetchUser();
   fetchRepos(currentPage);
   updatePagination();
 </script>
-
 </body>
 </html>
