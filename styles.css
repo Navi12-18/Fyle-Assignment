@@ -1,0 +1,221 @@
+body {
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+}
+
+h1 {
+  color: #3498db; /* Blue color for the heading */
+}
+
+#main {
+  margin: 10px 0;
+  width: 100%;
+}
+
+#userContainer {
+  display: none;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+#userDetailsHeading {
+  color: #3498db; /* Blue color for the user details heading */
+  cursor: default;
+}
+
+#basicInformation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#userImage {
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.repo-card {
+  box-sizing: border-box;
+  grid-column: span 1;
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #3498db;
+  border-radius: 10px;
+  margin-bottom: 20px; /* Added vertical space between repo-cards */
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.repo-card:hover {
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
+}
+
+h2 {
+  margin-bottom: 10px;
+  color: #333; /* Default color for heading */
+  cursor: pointer;
+}
+
+h2:hover {
+  color: #3498db; /* Blue color on hover */
+}
+
+p {
+  margin: 4px 0; /* Added vertical space between repo card content */
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-link {
+  margin: 0 5px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease-in-out;
+}
+
+.page-link:hover {
+  color: #3498db;
+}
+
+#searchContainer {
+  display: none;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#searchField {
+  padding: 8px;
+  margin-bottom: 8px;
+  width: 200px;
+  border: 1px solid #3498db;
+  border-radius: 5px;
+  font-family: "Poppins", sans-serif; /* Added font-family */
+}
+
+#searchButton {
+  padding: 8px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-left: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+#enterUsername {
+  margin-top: 10px;
+  color: #3498db;
+}
+
+#perPageContainer {
+  display: none;
+  margin-top: 10px;
+  text-align: center;
+}
+
+#perPageLabel {
+  margin-right: 5px;
+}
+
+#perPage {
+  padding: 8px;
+  width: 60px;
+  font-family: "Poppins", sans-serif; /* Added font-family */
+}
+
+#repositoriesContainer {
+  margin: 20px auto;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  width: 100%;
+}
+
+.repo-card > p {
+  margin: 5px 0px;
+}
+
+.tag {
+  padding: 5px;
+  background-color: #3498db;
+  width: max-content;
+  color: #fff;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 769px) {
+  /* Adjust the number of visible repo cards on desktop */
+  #repositoriesContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  #searchContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #searchField {
+    width: 100%;
+  }
+
+  #searchButton {
+    width: 100%;
+  }
+}
+
+.loader {
+  display: none;
+  border: 8px solid #f3f3f3; /* Light gray border */
+  border-top: 8px solid #3498db; /* Blue border for animation */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite; /* Spin animation */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#repoSearchBarContainer {
+  margin: 20px 0;
+  text-align: center;
+}
+
+#repoSearchBar {
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid #3498db;
+  border-radius: 5px;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+  transition: border-color 0.3s ease-in-out;
+}
+
+#repoSearchBar:focus {
+  border-color: #2980b9;
+}
